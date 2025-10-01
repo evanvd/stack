@@ -3,13 +3,12 @@
 void StackInit(stack_t* stk,size_t size)
 {
     stk->capacity = size;
-    printf("%d %d\n", stk->capacity, stk->size);
-    stk->data = (char*)calloc(stk->capacity, sizeof(char));
+    //printf("%lu %lu\n", stk->capacity, stk->size);
+    stk->data = (int*)calloc(stk->capacity, sizeof(int));
     size_t index = 0;
     for (; index < stk->capacity; index++)
     {
-        //stk->data[index] = 'c'; 
-        scanf("%c", &stk->data[index]);
+        scanf("%d", &stk->data[index]);
     }
 
     stk->size = index;
@@ -23,7 +22,13 @@ void PutStack(stack_t* stk)
 
     for (size_t index = 0; index < stk->size; index++)
     {
-        printf("data[%lu] = %c\n", index, stk->data[index]);
+        printf("data[%lu] = %d\n", index, stk->data[index]);
     }
-    
+}
+
+void StackDestroy(stack_t* stk)
+{
+    free(stk->data);
+    stk->size = 0;
+    stk->capacity = 0;
 }
