@@ -1,20 +1,24 @@
 #include "stack.h"
 
+int canary_value = 0xcafebabe;
+
 void StackInit(stack_t* stk,size_t size)
 {
     stk->capacity = size;
-    stk->data = (int*)calloc(stk->capacity, sizeof(int));
-    size_t index = 0;
-    for (; index < stk->capacity; index++)
+    stk->data = (int*)calloc(stk->capacity + 2, sizeof(int));
+    stk->data[stk->size + 1] = canary_value;
+    size_t index = 1;
+    for (; index < stk->capacity + 1; index++)
     {
         scanf("%d", &stk->data[index]);
     }
     stk->size = index;
+    stk->data[stk->size + 1] = canary_value;
 }
 
 void StackDump(stack_t* stk)
 {
-    StackVerify(stk);    
+    StackVerify(stk);
     printf("capacity - %lu\n", stk->capacity);
     printf("capacity - %lu\n", stk->capacity);
 
@@ -46,7 +50,7 @@ void StackPush(stack_t* stk, int element)
 int StackPop(stack_t* stk)
 {
     StackVerify(stk);    
-    return stk->data[stk->size-1];
+    return stk->data[stk->size];
     stk->data[stk->size-1] = 0;
     stk->size--;
     StackVerify(stk);
@@ -54,6 +58,11 @@ int StackPop(stack_t* stk)
 
 stackError StackVerify(stack_t* stk)
 {
+    if (stk->data[stk->size+1] != canary_value)
+    {
+        return CanaryErr;
+    }
+    
     return NoErr;
 }
 
