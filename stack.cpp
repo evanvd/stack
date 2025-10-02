@@ -22,10 +22,10 @@ void StackInit(stack_t* stk,size_t size)
 void StackDump(stack_t* stk)
 {
     StackVerify(stk);
-    printf("capacity - %lu\n", stk->capacity);
-    printf("capacity - %lu\n", stk->capacity);
+    printf("\ncapacity - %lu\n", stk->capacity);
+    printf("size - %lu\n", stk->size - 1);
 
-    for (size_t index = 1; index < stk->size; index++)
+    for (size_t index = 0; index < stk->size; index++)
     {
         printf("data[%lu] = %d\n", index, stk->data[index]);
     }
@@ -45,33 +45,33 @@ void StackPush(stack_t* stk, int element)
     if (stk->capacity <= stk->size)
     {
         stk->data = (int*)realloc(stk->data,stk->size);
+        stk->capacity++;
     }
     stk->data[stk->size] = element;
+    stk->size++;
+    stk->data[stk->size] = canary_value;
     StackVerify(stk);    
 }
 
 int StackPop(stack_t* stk)
 {
-    StackVerify(stk);    
-    return stk->data[--stk->size];
-    stk->data[--stk->size] = 0;
-    --stk->size;
+    int temp = stk->data[--stk->size];
+    stk->data[stk->size] = canary_value;
     StackVerify(stk);
+    return temp;
 }
 
-stackError StackVerify(stack_t* stk)
+stackError StackVerify(stack_t* stk) // do verify in main
 {
-    printf("%d\n", stk->data[stk->size+1]);
+    //printf("%d\n", stk->data[stk->size+1]);
     //assert(stk->data[stk->size+1] != canary_value);
     if (stk->data[stk->size] != canary_value)
     {
         printf("лох");        
         return CanaryErr;
     }
-    
     return NoErr;
 }
 
-//TODO Push 
 //TODO pop dump 
 //TODO verify ctr dtr canary realloc
