@@ -10,7 +10,7 @@ int main()
     StackInit(&stk1,5);
 
     StackDump(&stk1);
-
+    
     printf("%d", StackPop(&stk1));
     StackDestroy(&stk1);
 }
