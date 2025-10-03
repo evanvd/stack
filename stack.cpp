@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <string.h>
 
-int canary_value = 0xC0FFEE;
+int CANARY_VALUE = 0xC0FFEE;
 const int POISON_VALUE = 0xDEAD;
 
 void StackInit(stack_t* stk,size_t capacity)
@@ -16,24 +16,21 @@ void StackInit(stack_t* stk,size_t capacity)
         return;
     }
 
-    stk->data[0] = canary_value;
+    stk->data[0] = CANARY_VALUE;
 
-    size_t index = 1;
-    for (; index < stk->capacity + 1; index++)
+    for (size_t index = 1; index <= stk->capacity; index++) 
     {
-        //scanf("%d", &stk->data[index]);
-        stk->data[index] = (int)index;
+        stk->data[index] = POISON_VALUE;
     }
 
-    stk->size = index;
-    stk->data[stk->size + 1] = canary_value;
+    stk->data[stk->capacity + 1] = CANARY_VALUE;
 }
 
 void StackDump(stack_t* stk)
 {
     StackVerify(stk);
     printf("\ncapacity - %lu\n", stk->capacity);
-    printf("size - %lu\n", stk->size - 1);
+    printf("size - %lu\n", stk->size);
 
     for (size_t index = 1; index < stk->size; index++)
     {
@@ -51,38 +48,46 @@ void StackDestroy(stack_t* stk)
 
 void StackPush(stack_t* stk, int element)
 {
-    if (stk->capacity <= stk->size)
+    if (stk->capacity == stk->size)//TODO fix сравнение с size
     {
         stk->data = (int*)realloc(stk->data,stk->size);
         stk->capacity++;
+        stk->data[stk->capacity] = CANARY_VALUE;
     }
-    stk->data[stk->size] = element;
     stk->size++;
-    stk->data[stk->size] = canary_value;
+    stk->data[stk->size] = element;
     StackVerify(stk);    
 }
 
 int StackPop(stack_t* stk)
 {
     StackVerify(stk);
+    if (stk->size == 0)
+    {
+        printf("Stack empty");
+        return 0;
+    }
+    
     int temp = stk->data[--stk->size];
-    stk->data[stk->size] = canary_value;
     StackVerify(stk);
     return temp;
 }
 
 stackError StackVerify(stack_t* stk) // TODO verify in main
 {
-    if (stk->data[stk->size + 1] != canary_value)
+    if (stk == NULL) return NullData;
+    if (stk->data == NULL) return NullData;
+    
+    if (stk->data[stk->capacity + 1] != CANARY_VALUE)
     {
         printf("Right canary value has been changed");
         stk->stack_error = RightCanaryErr;  
         return RightCanaryErr;      
     }
 
-    else if (stk->data[0] != canary_value)
+    else if (stk->data[0] != CANARY_VALUE)
     {
-        printf("Left canary value has been changed");
+        printf("Left canary value has been changed\n");
         stk->stack_error = LeftCanaryErr;
         return LeftCanaryErr;
     }
@@ -98,18 +103,18 @@ void CallFromConsole(stack_t* stk, char* console_input)
         StackPush(stk, push_data);
     }
     
-    if(strcmp(console_input,"POP") == 0)
+    else if(strcmp(console_input,"POP") == 0)
     {
-        StackPop(stk);
+        printf("%d\n", StackPop(stk));
     }
     
-    if(strcmp(console_input, "DUMP") == 0)
+    else if(strcmp(console_input, "DUMP") == 0)
     {
         StackDump(stk);
     }
     else
     {
-        printf("unknown command");
+        printf("unknown command\n");
     }
 }
 
