@@ -1,5 +1,6 @@
 #include "stack.h"
 #include <assert.h>
+#include <string.h>
 
 int canary_value = 0xC0FFEE;
 const int POISON_VALUE = 0xDEAD;
@@ -8,7 +9,8 @@ void StackInit(stack_t* stk,size_t size)
 {
     stk->capacity = size;
     stk->data = (int*)calloc(stk->capacity + 2, sizeof(int));
-    stk->data[stk->capacity + 1] = canary_value;
+    stk->data[0] = canary_value;
+
     size_t index = 1;
     for (; index < stk->capacity + 1; index++)
     {
@@ -25,7 +27,7 @@ void StackDump(stack_t* stk)
     printf("\ncapacity - %lu\n", stk->capacity);
     printf("size - %lu\n", stk->size - 1);
 
-    for (size_t index = 0; index < stk->size; index++)
+    for (size_t index = 1; index < stk->size; index++)
     {
         printf("data[%lu] = %d\n", index, stk->data[index]);
     }
@@ -55,23 +57,49 @@ void StackPush(stack_t* stk, int element)
 
 int StackPop(stack_t* stk)
 {
+    StackVerify(stk);
     int temp = stk->data[--stk->size];
     stk->data[stk->size] = canary_value;
     StackVerify(stk);
     return temp;
 }
 
-stackError StackVerify(stack_t* stk) // do verify in main
+stackError StackVerify(stack_t* stk) // TODO verify in main
 {
-    //printf("%d\n", stk->data[stk->size+1]);
-    //assert(stk->data[stk->size+1] != canary_value);
     if (stk->data[stk->size] != canary_value)
     {
-        printf("лох");        
-        return CanaryErr;
+        printf("Right canary value has been changed");
+        stk->stack_error = RightCanaryErr;  
+        return RightCanaryErr;      
+    }
+
+    else if (stk->data[0] != canary_value)
+    {
+        printf("Left canary value has been changed");
+        stk->stack_error = LeftCanaryErr;
+        return LeftCanaryErr;
     }
     return NoErr;
 }
 
-//TODO pop dump 
-//TODO verify ctr dtr canary realloc
+void CallFromConsole(char* console_input, stack_t stk)
+{
+    if(strcmp(console_input, "PUSH") == 0)
+    {
+        int push_data;
+        scanf("%d",push_data);
+        StackPush(&stk, push_data);
+    }
+    
+    if(strcmp(console_input,"POP") == 0)
+    {
+        StackPop(&stk);
+    }
+    
+    if(strcmp(console_input, "DUMP") == 0)
+    {
+        StackDump(&stk);
+    }
+}
+
+//TODO verify
