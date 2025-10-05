@@ -29,11 +29,13 @@ void StackDump(stack_t* stk)
     printf("\ncapacity - %lu\n", stk->capacity);
     printf("size - %lu\n", stk->size);
 
+    printf("Left canary %d  should be 12648430\n\n", stk->data[0]);
     for (size_t index = 1; index <= stk->size; index++)
     {
         printf("data[%lu] = %d\n", index, stk->data[index]);
     }
-    StackVerify(stk);    
+    printf("\nRight canary %d  should be 12648430\n", stk->data[stk->capacity + 1]);
+    StackVerify(stk);   
 }
 
 void StackDestroy(stack_t* stk)
@@ -61,11 +63,11 @@ int StackPop(stack_t* stk)
     StackVerify(stk);
     if (stk->size < 1)
     {
-        printf("Stack empty");
+        printf("Stack empty\n");
         return 0;
     }
     
-    int temp = stk->data[--stk->size];
+    int temp = stk->data[stk->size];
     StackVerify(stk);
     return temp;
 }
@@ -91,6 +93,20 @@ stackError StackVerify(stack_t* stk) // TODO verify in main
     return NoErr;
 }
 
+void StackMul(stack_t* stk)
+{
+    if (stk->size < 2)
+    {
+        return ;
+    }
+    
+    int num1 = StackPop(stk); // TODO FIX POP/MUL
+    printf("%d\n", num1);
+    int num2 = StackPop(stk);
+    printf("%d\n", num2);
+    StackPush(stk, num1 * num2);
+}
+
 void CallFromConsole(stack_t* stk, char* console_input)
 {
     if(strcmp(console_input, "PUSH") == 0)
@@ -108,6 +124,10 @@ void CallFromConsole(stack_t* stk, char* console_input)
     else if(strcmp(console_input, "DUMP") == 0)
     {
         StackDump(stk);
+    }
+    else if (strcmp(console_input, "MUL") == 0)
+    {
+        StackMul(stk);
     }
     else
     {
