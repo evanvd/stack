@@ -1,6 +1,9 @@
 #include <stdio.h> 
 #include <stdlib.h>
 
+const int CANARY_VALUE = 0xC0FFEE;
+const int POISON_VALUE = 0xDEAD;
+
 enum stackError 
 {
     NoErr = -1,

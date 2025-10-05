@@ -2,9 +2,6 @@
 #include <assert.h>
 #include <string.h>
 
-int CANARY_VALUE = 0xC0FFEE;
-const int POISON_VALUE = 0xDEAD;
-
 void StackInit(stack_t* stk,size_t capacity)
 {
     stk->capacity = capacity;
@@ -32,7 +29,7 @@ void StackDump(stack_t* stk)
     printf("\ncapacity - %lu\n", stk->capacity);
     printf("size - %lu\n", stk->size);
 
-    for (size_t index = 1; index < stk->size; index++)
+    for (size_t index = 1; index <= stk->size; index++)
     {
         printf("data[%lu] = %d\n", index, stk->data[index]);
     }
@@ -48,7 +45,7 @@ void StackDestroy(stack_t* stk)
 
 void StackPush(stack_t* stk, int element)
 {
-    if (stk->capacity == stk->size)//TODO fix сравнение с size
+    if (stk->capacity == stk->size)//TODO fix compare size
     {
         stk->data = (int*)realloc(stk->data,stk->size);
         stk->capacity++;
@@ -62,7 +59,7 @@ void StackPush(stack_t* stk, int element)
 int StackPop(stack_t* stk)
 {
     StackVerify(stk);
-    if (stk->size == 0)
+    if (stk->size < 1)
     {
         printf("Stack empty");
         return 0;
