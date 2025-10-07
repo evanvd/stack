@@ -51,7 +51,7 @@ void StackPush(stack_t* stk, int element)
     {
         stk->data = (int*)realloc(stk->data,stk->size);
         stk->capacity++;
-        stk->data[stk->capacity] = CANARY_VALUE;
+        stk->data[stk->capacity + 1] = CANARY_VALUE;
     }
     stk->size++;
     stk->data[stk->size] = element;
@@ -68,6 +68,7 @@ int StackPop(stack_t* stk)
     }
     
     int temp = stk->data[stk->size];
+    stk->size--;
     StackVerify(stk);
     return temp;
 }
@@ -79,7 +80,7 @@ stackError StackVerify(stack_t* stk) // TODO verify in main
     
     if (stk->data[stk->capacity + 1] != CANARY_VALUE)
     {
-        printf("Right canary value has been changed");
+        printf("Right canary value has been changed\n");
         stk->stack_error = RightCanaryErr;  
         return RightCanaryErr;      
     }
@@ -97,6 +98,7 @@ void StackMul(stack_t* stk)
 {
     if (stk->size < 2)
     {
+        printf("Stack empty\n");
         return ;
     }
     
@@ -105,6 +107,18 @@ void StackMul(stack_t* stk)
     int num2 = StackPop(stk);
     printf("%d\n", num2);
     StackPush(stk, num1 * num2);
+}
+
+void StackSub(stack_t* stk)
+{
+    if (stk->size < 2)
+    {
+        printf("Stack empty\n");
+        return ;
+    }
+    int num1 = StackPop(stk);
+    int num2 = StackPop(stk);
+    StackPush(stk, num1 - num2);
 }
 
 void CallFromConsole(stack_t* stk, char* console_input)
@@ -128,6 +142,10 @@ void CallFromConsole(stack_t* stk, char* console_input)
     else if (strcmp(console_input, "MUL") == 0)
     {
         StackMul(stk);
+    }
+    else if (strcmp(console_input, "SUB") == 0)
+    {
+        StackSub(stk);
     }
     else
     {
