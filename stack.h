@@ -29,3 +29,4 @@ stackError StackVerify(stack_t* stk);
 
 void CallFromConsole(stack_t* stk, char* console_input);
 void StackMul(stack_t* stk);
+void StackSub(stack_t* stk);
